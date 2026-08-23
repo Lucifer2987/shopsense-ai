@@ -29,7 +29,10 @@
 
 | Homepage | Voice Shopping | Cart |
 |----------|---------------|------|
-| *Add screenshot here* | *Add screenshot here* | *Add screenshot here* |
+| <img width="1602" height="981" alt="image" src="https://github.com/user-attachments/assets/fe734ffb-9c80-4916-85b6-07850271c736" />
+ | <img width="598" height="591" alt="image" src="https://github.com/user-attachments/assets/948e622f-5623-4158-9ef1-062bac5abe55" />
+ | <img width="1917" height="969" alt="image" src="https://github.com/user-attachments/assets/b107b94f-1e61-4e79-8738-88653c10c499" />
+|
 
 > **How to add:** Place your screenshot files in the repo root or `/docs/screenshots/` and update the table above.
 
