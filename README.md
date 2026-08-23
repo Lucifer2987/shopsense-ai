@@ -36,17 +36,7 @@
 
 ## 🏗️ Architecture
 
-> Add your architecture diagram here
-
-<!-- Replace this section with your architecture image -->
-
-```
-[ Architecture diagram coming soon ]
-```
-
-> **How to add:** Export your architecture diagram (PNG or SVG), place it in `/docs/` and add it below:
->
-> `![Architecture](docs/architecture.png)`
+<img width="1401" height="1756" alt="ShopeSenseAI_Arch" src="https://github.com/user-attachments/assets/621006f5-100b-48ef-98ff-fc68d62a8ef1" />
 
 ---
 
