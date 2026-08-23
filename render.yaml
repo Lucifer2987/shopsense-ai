@@ -1,0 +1,47 @@
+# ============================================================
+# ShopSense AI — Render Deployment Configuration
+# ============================================================
+# This file defines the Render services for ShopSense AI.
+# It documents service settings WITHOUT hardcoding any secrets.
+# All sensitive values must be set in the Render dashboard.
+# ============================================================
+
+services:
+  - type: web
+    name: shopsense-ai-backend
+    runtime: python
+    region: oregon
+    plan: free
+
+    # Root directory of the Flask backend (relative to repo root)
+    rootDir: backend
+
+    # Install dependencies
+    buildCommand: pip install -r requirements.txt
+
+    # Gunicorn WSGI server — entry point verified from backend/run.py
+    # run.py creates: app = create_app()  → gunicorn sees: run:app
+    startCommand: gunicorn run:app --bind 0.0.0.0:$PORT --workers 2 --timeout 120
+
+    # Health check — used by Render to verify the service is up
+    healthCheckPath: /api/health
+
+    # Environment variables — set values in the Render dashboard
+    # DO NOT add real values here; this file is committed to git.
+    envVars:
+      - key: SUPABASE_URL
+        sync: false          # Set in Render dashboard
+
+      - key: SUPABASE_KEY
+        sync: false          # Set in Render dashboard (service_role key)
+
+      - key: GEMINI_API_KEY
+        sync: false          # Set in Render dashboard
+
+      - key: CORS_ORIGINS
+        # Replace with your actual Vercel domain after deployment
+        # Format for multiple origins: https://your-app.vercel.app,https://your-app-git-main.vercel.app
+        value: https://your-vercel-app.vercel.app
+
+      - key: PYTHON_VERSION
+        value: "3.11.0"
