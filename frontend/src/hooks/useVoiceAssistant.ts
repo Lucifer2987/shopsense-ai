@@ -105,7 +105,7 @@ export function useVoiceAssistant() {
         return response;
       }
     } catch (err: any) {
-      console.error('[ShopSense Voice] Error:', err);
+      console.warn('[ShopSense Voice] Request issue:', err);
       setState('ERROR');
       const msg = err?.message || 'Failed to process voice command. Please try again.';
       setErrorMessage(msg);

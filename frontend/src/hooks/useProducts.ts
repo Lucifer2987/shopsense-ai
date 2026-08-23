@@ -16,7 +16,7 @@ export function useProducts(initialFilters: ProductFilters = {}) {
       const data = await productApi.getProducts(filters);
       setProducts(data);
     } catch (err: any) {
-      console.error('Error fetching products:', err);
+      console.warn('Could not fetch products:', err);
       setError(err?.message || 'Failed to load products');
     } finally {
       setLoading(false);
