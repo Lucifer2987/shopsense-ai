@@ -70,12 +70,12 @@ export function ProductSectionRow({
         {/* Scrollable Products Row */}
         <div
           ref={scrollContainerRef}
-          className="flex items-stretch gap-3 sm:gap-4 overflow-x-auto pb-2 pt-0.5 px-1 scrollbar-none scroll-smooth"
+          className="flex items-stretch gap-2.5 sm:gap-4 overflow-x-auto pb-2 pt-0.5 px-0.5 scrollbar-none scroll-smooth -mx-1 sm:mx-0 px-1 sm:px-0"
         >
           {products.map((product) => (
             <div
               key={product.id}
-              className="w-[155px] sm:w-[185px] lg:w-[200px] shrink-0 flex"
+              className="w-[145px] sm:w-[180px] lg:w-[200px] shrink-0 flex"
             >
               <div className="w-full">
                 <ProductCard product={product} />

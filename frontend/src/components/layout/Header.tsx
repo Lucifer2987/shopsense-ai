@@ -38,8 +38,8 @@ export function Header({ searchValue, onSearchChange }: HeaderProps) {
             </div>
           </a>
 
-          {/* Delivery Location Context (Instamart style) */}
-          <div className="hidden lg:flex flex-col text-left pl-3 border-l border-[var(--border-subtle)]">
+          {/* Delivery Location Context (Desktop) */}
+          <div className="hidden md:flex flex-col text-left pl-3 border-l border-[var(--border-subtle)]">
             <div className="flex items-center gap-1 text-[11px] font-black text-emerald-700 dark:text-emerald-400">
               <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               <span>12 MINS DELIVERY</span>
@@ -49,7 +49,7 @@ export function Header({ searchValue, onSearchChange }: HeaderProps) {
                 const loc = prompt('Enter your delivery address:', deliveryLocation);
                 if (loc?.trim()) setDeliveryLocation(loc.trim());
               }}
-              className="flex items-center gap-1 text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors text-left truncate max-w-[200px]"
+              className="flex items-center gap-1 text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors text-left truncate max-w-[180px] lg:max-w-[220px]"
             >
               <span className="truncate">{deliveryLocation}</span>
               <ChevronDown className="w-3 h-3 text-[var(--text-muted)] shrink-0" />

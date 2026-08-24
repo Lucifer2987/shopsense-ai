@@ -92,7 +92,7 @@ export function FloatingVoiceAssistant() {
 
       {/* Compact Voice Interaction Card */}
       {isVoiceModalOpen && (
-        <div className="fixed inset-0 md:inset-auto md:bottom-6 md:right-6 z-50 flex items-end md:items-end justify-center md:justify-end p-3 sm:p-0">
+        <div className="fixed inset-0 md:inset-auto md:bottom-6 md:right-6 z-50 flex items-end md:items-end justify-center md:justify-end p-3 pb-18 sm:p-0 md:p-0">
           
           {/* Mobile backdrop */}
           <div

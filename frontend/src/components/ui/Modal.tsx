@@ -48,10 +48,10 @@ export function Modal({ isOpen, onClose, title, children, maxWidth = 'md' }: Mod
       <div
         role="dialog"
         aria-modal="true"
-        className={`relative w-full ${maxWidthClass} rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] shadow-2xl p-6 overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-150`}
+        className={`relative w-full ${maxWidthClass} max-h-[90vh] flex flex-col rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] shadow-2xl p-4 sm:p-6 overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-150`}
       >
-        <div className="flex items-center justify-between pb-3 border-b border-[var(--border-subtle)]">
-          {title && <h3 className="text-lg font-semibold text-[var(--text-primary)]">{title}</h3>}
+        <div className="flex items-center justify-between pb-3 border-b border-[var(--border-subtle)] shrink-0">
+          {title && <h3 className="text-base sm:text-lg font-semibold text-[var(--text-primary)]">{title}</h3>}
           <button
             onClick={onClose}
             className="p-1.5 rounded-xl text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card-subtle)] transition-colors ml-auto"
@@ -61,7 +61,7 @@ export function Modal({ isOpen, onClose, title, children, maxWidth = 'md' }: Mod
           </button>
         </div>
 
-        <div className="mt-4">{children}</div>
+        <div className="mt-4 overflow-y-auto flex-1 pr-1 scrollbar-thin">{children}</div>
       </div>
     </div>
   );
