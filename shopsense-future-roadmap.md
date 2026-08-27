@@ -327,6 +327,11 @@ Every layer will be designed to be independently scalable and observable.
 
 ---
 
+Sequence Diagram 
+
+<img width="1536" height="1024" alt="sequence diagram of shopesese" src="https://github.com/user-attachments/assets/acb4b004-e39f-4acc-89f0-2944de367469" />
+
+---
 ## The Long-Term Vision
 
 The ultimate vision for ShopSense is:
