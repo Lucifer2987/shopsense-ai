@@ -64,7 +64,10 @@ def create_product():
         return error(str(exc), "VALIDATION_ERROR", 422)
     try:
         payload = body.model_dump(exclude_none=True)
-        payload.setdefault("stock", True)
+        # stock is a boolean availability flag. New products have no inventory yet,
+        # so stock starts as False. The inventory service syncs this flag whenever
+        # stock-in / stock-out / adjust operations run.
+        payload["stock"] = False
         payload.setdefault("is_active", True)
         result = supabase.table("products").insert(payload).execute()
         return success(data=result.data[0], message="Product created.", code=201)

@@ -61,6 +61,46 @@ def test_stock_in_success(client):
     assert response.get_json()["success"] is True
 
 
+def test_stock_in_syncs_stock_flag_to_true(client):
+    """After stock-in, inventory_service.stock_in is called and must sync products.stock=True.
+
+    We test the service layer directly: after a successful _call_atomic_update with
+    resulting quantity > 0, _sync_stock_flag must set stock=True.
+    """
+    rpc_result = {**INV, "quantity": 10}  # quantity > 0 after stock-in
+
+    with patch("app.services.inventory_service.supabase") as mock_sb:
+        # Mock the inventory existence check
+        inv_chain = mock_sb.table.return_value
+        inv_chain.select.return_value = inv_chain
+        inv_chain.eq.return_value = inv_chain
+        inv_chain.execute.return_value.data = [INV]
+
+        # Mock the RPC call
+        mock_sb.rpc.return_value.execute.return_value.data = rpc_result
+
+        # Mock the products.stock update
+        products_chain = MagicMock()
+        products_chain.update.return_value = products_chain
+        products_chain.eq.return_value = products_chain
+        products_chain.execute.return_value.data = []
+
+        # Make table() return different mocks per table name
+        def table_side_effect(name):
+            if name == "products":
+                return products_chain
+            return inv_chain
+
+        mock_sb.table.side_effect = table_side_effect
+
+        from app.services.inventory_service import stock_in
+        stock_in("store-uuid-1", "prod-uuid-1", "seller-uuid-1", 10, None)
+
+        # Verify products.stock was updated to True
+        products_chain.update.assert_called_once_with({"stock": True})
+        products_chain.eq.assert_called_once_with("id", "prod-uuid-1")
+
+
 def test_stock_in_zero_quantity(client):
     response = client.post(
         "/api/seller/inventory/prod-uuid-1/stock-in",
@@ -92,6 +132,38 @@ def test_stock_out_success(client):
             headers=_auth(),
         )
     assert response.status_code == 200
+
+
+def test_stock_out_zero_quantity_syncs_stock_flag_to_false(client):
+    """When stock-out reduces inventory to 0, products.stock must be synced to False."""
+    rpc_result = {**INV, "quantity": 0}  # quantity hits 0 after stock-out
+
+    with patch("app.services.inventory_service.supabase") as mock_sb:
+        inv_chain = mock_sb.table.return_value
+        inv_chain.select.return_value = inv_chain
+        inv_chain.eq.return_value = inv_chain
+        inv_chain.execute.return_value.data = [INV]
+
+        mock_sb.rpc.return_value.execute.return_value.data = rpc_result
+
+        products_chain = MagicMock()
+        products_chain.update.return_value = products_chain
+        products_chain.eq.return_value = products_chain
+        products_chain.execute.return_value.data = []
+
+        def table_side_effect(name):
+            if name == "products":
+                return products_chain
+            return inv_chain
+
+        mock_sb.table.side_effect = table_side_effect
+
+        from app.services.inventory_service import stock_out
+        stock_out("store-uuid-1", "prod-uuid-1", "seller-uuid-1", 20, None)
+
+        # Verify products.stock was updated to False (quantity == 0)
+        products_chain.update.assert_called_once_with({"stock": False})
+        products_chain.eq.assert_called_once_with("id", "prod-uuid-1")
 
 
 def test_stock_out_insufficient_stock(client):

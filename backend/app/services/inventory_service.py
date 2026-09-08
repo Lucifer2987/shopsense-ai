@@ -108,21 +108,50 @@ def _ensure_inventory_exists(store_id: str, product_id: str) -> dict:
     return inv
 
 
+def _sync_stock_flag(product_id: str, new_quantity: int) -> None:
+    """
+    Keep products.stock (Phase 1 boolean availability flag) in sync with
+    the Phase 2 inventory quantity:
+      quantity > 0  →  stock = True   (product is available to customers)
+      quantity == 0 →  stock = False  (product is out of stock)
+    This does NOT duplicate inventory data — stock is only a customer-facing
+    availability hint, not a count.
+    """
+    in_stock = new_quantity > 0
+    try:
+        supabase.table("products").update({"stock": in_stock}).eq("id", product_id).execute()
+        logger.info("Synced products.stock=%s for product_id=%s (qty=%d)", in_stock, product_id, new_quantity)
+    except Exception as exc:
+        # Non-fatal: log the failure but do not roll back the inventory mutation.
+        logger.error("Failed to sync products.stock for product_id=%s: %s", product_id, exc)
+
+
 def stock_in(store_id: str, product_id: str, seller_id: str, quantity: int, note: Optional[str]) -> dict:
     _ensure_inventory_exists(store_id, product_id)
-    return _call_atomic_update(store_id, product_id, seller_id, "STOCK_IN", quantity, note)
+    result = _call_atomic_update(store_id, product_id, seller_id, "STOCK_IN", quantity, note)
+    # After stock-in, quantity is always > 0 → sync stock flag to True.
+    new_qty = result.get("quantity") if isinstance(result, dict) else None
+    _sync_stock_flag(product_id, new_qty if new_qty is not None else 1)
+    return result
 
 
 def stock_out(store_id: str, product_id: str, seller_id: str, quantity: int, note: Optional[str]) -> dict:
     _ensure_inventory_exists(store_id, product_id)
     # Negative delta for stock out.
-    return _call_atomic_update(store_id, product_id, seller_id, "STOCK_OUT", -quantity, note)
+    result = _call_atomic_update(store_id, product_id, seller_id, "STOCK_OUT", -quantity, note)
+    new_qty = result.get("quantity") if isinstance(result, dict) else None
+    # Sync: quantity == 0 → stock=False, quantity > 0 → stock=True
+    _sync_stock_flag(product_id, new_qty if new_qty is not None else 0)
+    return result
 
 
 def adjust_stock(store_id: str, product_id: str, seller_id: str, target_quantity: int, note: Optional[str]) -> dict:
     _ensure_inventory_exists(store_id, product_id)
     # For ADJUSTMENT, p_delta is the absolute target quantity (handled in the SQL function).
-    return _call_atomic_update(store_id, product_id, seller_id, "ADJUSTMENT", target_quantity, note)
+    result = _call_atomic_update(store_id, product_id, seller_id, "ADJUSTMENT", target_quantity, note)
+    # target_quantity is the new absolute quantity, so sync directly.
+    _sync_stock_flag(product_id, target_quantity)
+    return result
 
 
 def get_low_stock(store_id: str) -> list[dict]:

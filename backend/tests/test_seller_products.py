@@ -1,4 +1,4 @@
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, call, patch
 
 PRODUCT = {
     "id": "prod-uuid-1",
@@ -6,7 +6,7 @@ PRODUCT = {
     "category": "Dairy",
     "brand": "Amul",
     "price": 62.0,
-    "stock": True,
+    "stock": False,   # New products always start with stock=False (no inventory yet)
     "is_active": True,
     "tags": [],
 }
@@ -54,8 +54,9 @@ def test_seller_list_products_no_auth(client):
 # ── Create ────────────────────────────────────────────────────────────────────
 
 def test_seller_create_product(client):
+    """Seller creates a product successfully — HTTP 201 returned."""
     with patch("app.routes.seller_products.supabase") as mock_sb:
-        _mock_product_table(mock_sb, [PRODUCT])
+        chain = _mock_product_table(mock_sb, [PRODUCT])
         response = client.post(
             "/api/seller/products",
             json={"name": "Milk", "category": "Dairy", "price": 62.0},
@@ -63,6 +64,32 @@ def test_seller_create_product(client):
         )
     assert response.status_code == 201
     assert response.get_json()["success"] is True
+
+
+def test_seller_create_product_stock_false_is_active_true(client):
+    """Newly created product must have stock=False and is_active=True.
+
+    products.stock is a boolean Phase 1 availability flag.
+    New products have no inventory, so stock MUST be inserted as False.
+    is_active=True so the product is visible in the seller dashboard.
+    """
+    with patch("app.routes.seller_products.supabase") as mock_sb:
+        chain = _mock_product_table(mock_sb, [PRODUCT])
+        client.post(
+            "/api/seller/products",
+            json={"name": "Milk", "category": "Dairy", "price": 62.0},
+            headers=_auth(),
+        )
+        # Capture what was passed to .insert()
+        insert_call_args = chain.insert.call_args
+        assert insert_call_args is not None, "insert() was never called"
+        inserted_payload = insert_call_args[0][0]  # first positional arg
+        assert inserted_payload.get("stock") is False, (
+            "stock must be False for a new product (no inventory yet)"
+        )
+        assert inserted_payload.get("is_active") is True, (
+            "is_active must be True so the product is visible"
+        )
 
 
 def test_seller_create_product_missing_fields(client):
