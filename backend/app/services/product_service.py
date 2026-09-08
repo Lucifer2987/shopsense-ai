@@ -51,7 +51,7 @@ def get_products(
     min_price: Optional[float] = None,
     in_stock: Optional[bool] = None,
 ) -> list[dict]:
-    query = supabase.table("products").select("*")
+    query = supabase.table("products").select("*").eq("is_active", True)
 
     if search:
         query = query.ilike("name", f"%{search}%")
@@ -70,7 +70,13 @@ def get_products(
 
 
 def get_product_by_id(product_id: str) -> Optional[dict]:
-    result = supabase.table("products").select("*").eq("id", product_id).execute()
+    result = (
+        supabase.table("products")
+        .select("*")
+        .eq("id", product_id)
+        .eq("is_active", True)
+        .execute()
+    )
     return result.data[0] if result.data else None
 
 
@@ -93,6 +99,7 @@ def find_best_product(name: str, brand: Optional[str] = None) -> Optional[dict]:
         .select("*")
         .ilike("name", f"%{normalised}%")
         .eq("stock", True)
+        .eq("is_active", True)
         .execute()
         .data
     )
@@ -121,13 +128,14 @@ def find_best_product(name: str, brand: Optional[str] = None) -> Optional[dict]:
 
 
 def find_products_by_name(name: str) -> list[dict]:
-    """Return all in-stock products matching name (for presenting alternatives)."""
+    """Return all in-stock active products matching name (for presenting alternatives)."""
     normalised = _normalize_name(name)
     return (
         supabase.table("products")
         .select("*")
         .ilike("name", f"%{normalised}%")
         .eq("stock", True)
+        .eq("is_active", True)
         .execute()
         .data
     )
@@ -145,6 +153,7 @@ def find_substitutes(product: dict, max_price: Optional[float] = None) -> list[d
         .eq("category", product.get("category", ""))
         .neq("id", product["id"])
         .eq("stock", True)
+        .eq("is_active", True)
     )
     if max_price is not None:
         query = query.lte("price", max_price)

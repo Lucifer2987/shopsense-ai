@@ -13,6 +13,9 @@ from app.routes.recommendations import recommendations_bp
 from app.routes.context import context_bp
 from app.routes.history import history_bp
 from app.routes.basket import basket_bp
+from app.routes.seller_auth import seller_auth_bp
+from app.routes.seller_products import seller_products_bp
+from app.routes.seller_inventory import seller_inventory_bp
 
 logging.basicConfig(
     level=logging.INFO,
@@ -37,6 +40,9 @@ def create_app() -> Flask:
         context_bp,
         history_bp,
         basket_bp,
+        seller_auth_bp,
+        seller_products_bp,
+        seller_inventory_bp,
     ]
     for bp in blueprints:
         app.register_blueprint(bp, url_prefix="/api")

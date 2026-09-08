@@ -10,6 +10,7 @@ class Config:
     SUPABASE_URL: str = os.getenv("SUPABASE_URL", "")
     SUPABASE_KEY: str = os.getenv("SUPABASE_KEY", "")
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
+    JWT_SECRET_KEY: str = os.getenv("JWT_SECRET_KEY", "")
     CORS_ORIGINS: list[str] = [
         o.strip()
         for o in os.getenv("CORS_ORIGINS", "http://localhost:3000").split(",")
@@ -30,6 +31,7 @@ def validate_config() -> None:
             "SUPABASE_URL": Config.SUPABASE_URL,
             "SUPABASE_KEY": Config.SUPABASE_KEY,
             "GEMINI_API_KEY": Config.GEMINI_API_KEY,
+            "JWT_SECRET_KEY": Config.JWT_SECRET_KEY,
         }.items()
         if not v
     ]
